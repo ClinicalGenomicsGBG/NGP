@@ -1,0 +1,3 @@
+[submodule "NGPi"]
+	path = NGPi
+	url = git@github.com:ClinicalGenomicsGBG/NGPi.git
