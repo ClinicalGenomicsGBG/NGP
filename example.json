@@ -1,0 +1,7 @@
+{
+    "run": "run_name_here",
+    "date": "191125",
+    "samples": ["sample_name_1.fastq", "sample_name_2.fastq", "sample_name_3.fastq"],
+    "metadata": {"key1": "value1",
+                 "key2": "value2"}
+}
