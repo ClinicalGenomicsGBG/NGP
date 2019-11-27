@@ -1,0 +1,82 @@
+#!/usr/bin/env python
+
+import argparse
+import NGPr.fastq_uploader as fq_upload
+import NGPi.hci as hci 
+import json
+
+
+def downloader():
+    pass
+
+
+def uploader(config_file):
+    fq_upload.seqstore(fq_upload.json_parser_path(config_file))
+    ssheet = fq_upload.samplesheet()
+    fq_upload.compressed_files(json_parser_path(config_file))
+    fq_upload.runid_json(sheet["date"], ssheet["invstigator"])
+    fq_upload.sample_json(ssheet["kit"], ssheet["reads"], ssheet["sample_inv"], ssheet["sex"])
+    fq_upload.upload_fastq(json_parser_path(config_file))
+    #upload_fastq()
+
+
+def query(my_query, my_token, my_index, my_out=False):
+    pretty = json.loads(hci.query(my_token, hci.get_template_json(my_index, my_query), my_index))
+    if my_out:
+        with open(args.output, "w+") as result:
+            result.write(json.dumps(pretty, indent=4))
+    else:
+        print(json.dumps(pretty, indent=4)) 
+
+
+
+
+
+def main():
+    """
+    Main interaction script. use of this script is voluntary, 
+    but can be a good first entrypoint into interacting with the NGPi
+    and NGPr
+    """
+    parser = argparse.ArgumentParser(prog='Interact with the filestore and index')
+
+    subparsers = parser.add_subparsers(help="Help for subcommands")
+
+    parser_download = subparsers.add_parser('download', help='download data from the HCP')
+    parser_download.set_defaults(which='download')
+    parser_download.add_argument("-b", "--bucket", nargs="?", action="store", type=str, help="Name of the bucket you want to look in")
+    parser_download.add_argument("-s", "--samplename", nargs="?", action="store", type=str, help='Name of the sample you want to download')
+    parser_download.add_argument("-t", "--type", nargs="?", action="store", type=str, help='Type of file you want to download. Ex: fastq/fq')
+    parser_download.add_argument("-p", "--password", nargs="?", action="store", type=str, help="")
+
+    parser_upload = subparsers.add_parser('upload', help='upload data to the HCP')
+    parser_upload.set_defaults(which='upload')
+    parser_upload.add_argument("-b", "--bucket", nargs="?", action="store", type=str, help="Specify which bucket you want to upload to")
+    parser_upload.add_argument("-f", "--file", nargs="?", action="store", type=str, help="Specify file to upload")
+    parser_upload.add_argument("-s", "--sample", nargs="?", action="store", type=str, help="Specify name of sample")
+    parser_upload.add_argument("-r", "--run", nargs="?", action="store", type=str, help="Specify name of run to upload")
+
+    parser_query = subparsers.add_parser('query', help='Query the index for information about run or sample')
+    parser_query.set_defaults(which="query")
+    parser_query.add_argument("-q", "--query", nargs="?", action='store', type=str, help=': Specify samples to query')
+    parser_query.add_argument("-i", "--indexes", nargs="?", action='store', type=str, help=': Specify buckets to list')
+    parser_query.add_argument("-o", "--output", nargs="?", action='store', type=str, help=': Specify file to store outputs')
+
+
+    args = parser.parse_args()
+
+    print(args)
+
+    if args.which == 'download':
+        print("download stuff") # replaceme
+    elif args.which == 'upload':
+        print("upload stuff") # replaceme
+    elif args.which == 'query':
+        my_query = args.query
+        token = hci.generate_token()
+        my_index = args.indexes
+        my_out = args.output
+        query(my_query, token, my_index, my_out)
+        
+if __name__ == "__main__":
+    main()
