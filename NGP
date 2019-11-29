@@ -21,7 +21,7 @@ def uploader(args):
 def query(my_query, my_token, my_index, my_out=False):
     pretty = json.loads(hci.query(my_token, hci.get_template_json(my_index, my_query), my_index))
     if my_out:
-        with open(args.output, "w+") as result:
+        with open(my_out, "w+") as result:
             result.write(json.dumps(pretty, indent=4))
     else:
         print(json.dumps(pretty, indent=4)) 
@@ -56,7 +56,6 @@ def main():
     parser_upload.add_argument("-p", "--path", required=True, help="The path to directory with files to upload")
     parser_upload.add_argument("-c", "--compression", help="Give the path to a compression script for compression of fastq files using petagene")
     parser_upload.add_argument("-v", "--csv", required=True, help="Path to SampleSheet.csv of run")
-
 
     parser_query = subparsers.add_parser('query', help='Query the index for information about run or sample')
     parser_query.set_defaults(which="query")
