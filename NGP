@@ -6,16 +6,25 @@ import NGPi.hci as hci
 import json
 
 
-def downloader():
-    pass
-
-
 def uploader(args):
     files_pg = fq_upload.files(args)
     ssheet = fq_upload.samplesheet(args)
     fq_upload.runid_json(ssheet["date"], ssheet["investigator"], args, files_pg)
     fq_upload.sample_json(ssheet["kit"], ssheet["reads"], ssheet["sample_inv"], ssheet["sex"], args, files_pg)
     fq_upload.upload_fastq(args, files_pg)
+
+
+def downloader():
+    from hcp import HCPManager
+
+    bucket_name = args.bucket
+    hcpm = HCPManager(bucket_name)
+
+    # Get object with key.
+    obj = hcpm.get_object(f"{key}")
+    
+    # Downloads associated json files.
+    hcpm.download_object(obj, f"{args.output}")
 
 
 def query(my_query, my_token, my_index, my_out=False):
@@ -42,10 +51,9 @@ def main():
 
     parser_download = subparsers.add_parser('download', help='download data from the HCP')
     parser_download.set_defaults(which='download')
-    parser_download.add_argument("-b", "--bucket", nargs="?", action="store", type=str, help="Name of the bucket you want to look in")
-    parser_download.add_argument("-s", "--samplename", nargs="?", action="store", type=str, help='Name of the sample you want to download')
-    parser_download.add_argument("-t", "--type", nargs="?", action="store", type=str, help='Type of file you want to download. Ex: fastq/fq')
-    parser_download.add_argument("-p", "--password", nargs="?", action="store", type=str, help="")
+    parser_upload.add_argument("-b", "--bucket", required=True, help="Specify which bucket you want to download from")
+    parser_upload.add_argument("-k", "--key", required=True, help="The path (key) to the file on the HCP you want to download")
+    parser_upload.add_argument("-o", "--output", required=True, help="Where to put the file downloaded from the HCP")
 
     parser_upload = subparsers.add_parser('upload', help='Upload fastq data to the HCP')
     parser_upload.set_defaults(which='upload')
