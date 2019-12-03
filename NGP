@@ -28,12 +28,12 @@ def downloader(args):
     bucket_name = args.bucket
     hcpm = HCPManager(bucket_name)
 
-    obj = hcpm.get_object(f"{key}") # Get object with key.
+    obj = hcpm.get_object(args.key) # Get object with key.
     
-    if args.which = "download":
-        hcpm.download_object(obj, f"{args.output}") # Downloads file.
+    if args.which == "download":
+        hcpm.download_object(obj, args.output) # Downloads file.
 
-    if args.which = "delete":
+    if args.which == "delete":
         sys.stderr.write("[--] You are about to delete a file, are you sure? [Y/N]?\n")
         answer = sys.stdin.readline()
         if answer[0].lower() == "y":
