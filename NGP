@@ -6,6 +6,11 @@ import NGPi.hci as hci
 import json
 
 
+"""
+Uses the fastq_uploader.py from NGPr to compress, 
+upload and create json files associated to the run 
+and sample ID. 
+""" 
 def uploader(args):
     files_pg = fq_upload.files(args)
     ssheet = fq_upload.samplesheet(args)
@@ -14,17 +19,29 @@ def uploader(args):
     fq_upload.upload_fastq(args, files_pg)
 
 
-def downloader():
+"""
+Downloads or delete files from the HCP using boto3 and Jens script.
+"""
+def downloader(args):
     from hcp import HCPManager
 
     bucket_name = args.bucket
     hcpm = HCPManager(bucket_name)
 
-    # Get object with key.
-    obj = hcpm.get_object(f"{key}")
+    obj = hcpm.get_object(f"{key}") # Get object with key.
     
-    # Downloads associated json files.
-    hcpm.download_object(obj, f"{args.output}")
+    if args.which = "download":
+        hcpm.download_object(obj, f"{args.output}") # Downloads file.
+
+    if args.which = "delete":
+        sys.stderr.write("[--] You are about to delete a file, are you sure? [Y/N]?\n")
+        answer = sys.stdin.readline()
+        if answer[0].lower() == "y":
+            sys.stderr.write("[--] Deleting file... \n")
+            hcpm.delete_object(obj) # Delete file.
+        else:
+            sys.exit("[Error] Exiting... Did not delete the file \n")
+
 
 
 def query(my_query, my_token, my_index, my_out=False):
@@ -49,12 +66,6 @@ def main():
 
     subparsers = parser.add_subparsers(help="Help for subcommands")
 
-    parser_download = subparsers.add_parser('download', help='download data from the HCP')
-    parser_download.set_defaults(which='download')
-    parser_upload.add_argument("-b", "--bucket", required=True, help="Specify which bucket you want to download from")
-    parser_upload.add_argument("-k", "--key", required=True, help="The path (key) to the file on the HCP you want to download")
-    parser_upload.add_argument("-o", "--output", required=True, help="Where to put the file downloaded from the HCP")
-
     parser_upload = subparsers.add_parser('upload', help='Upload fastq data to the HCP')
     parser_upload.set_defaults(which='upload')
     parser_upload.add_argument("-b", "--bucket", required=True, help="Specify which bucket you want to upload to")
@@ -64,6 +75,17 @@ def main():
     parser_upload.add_argument("-p", "--path", required=True, help="The path to directory with files to upload")
     parser_upload.add_argument("-c", "--compression", help="Give the path to a compression script for compression of fastq files using petagene")
     parser_upload.add_argument("-v", "--csv", required=True, help="Path to SampleSheet.csv of run")
+
+    parser_download = subparsers.add_parser('download', help='download data from the HCP')
+    parser_download.set_defaults(which='download')
+    parser_download.add_argument("-b", "--bucket", required=True, help="Specify which bucket you want to download from")
+    parser_download.add_argument("-k", "--key", required=True, help="The path (key) to the file on the HCP you want to download")
+    parser_download.add_argument("-o", "--output", required=True, help="Where to put the file downloaded from the HCP")
+
+    parser_delete = subparsers.add_parser('delete', help='delete data from the HCP')
+    parser_delete.set_defaults(which='delete')
+    parser_delete.add_argument("-b", "--bucket", required=True, help="Specify which bucket you want to download from")
+    parser_delete.add_argument("-k", "--key", required=True, help="The path (key) to the file on the HCP you want to download")
 
     parser_query = subparsers.add_parser('query', help='Query the index for information about run or sample')
     parser_query.set_defaults(which="query")
@@ -76,11 +98,13 @@ def main():
 
     print(args)
 
-    if args.which == 'download':
-        print("download stuff") # replaceme
-    elif args.which == 'upload':
+    if args.which == 'upload':
         print("upload stuff") # replaceme
         uploader(args)
+    elif args.which == 'download':
+        dowloader(args)
+    elif args.which == 'delete':
+        dowloader(args)
     elif args.which == 'query':
         my_query = args.query
         token = hci.generate_token()
