@@ -1,21 +1,71 @@
-#!/usr/bin/env python
+#!/apps/bio/software/anaconda2/envs/hcp/bin/python
+
+# /usr/bin/env python
 
 import argparse
-import NGPr.fastq_uploader as fq_upload
+import sys
+sys.path.append("/home/xcanfv/NGP/NGPr")
+import fastq_uploader as fq_upload
 import NGPi.hci as hci 
 import json
+import time
+import os
 
 
-def downloader():
-    pass
-
-
+"""
+Uses the fastq_uploader.py from NGPr to compress, 
+upload and create json files associated to the run 
+and sample ID. 
+""" 
 def uploader(args):
     files_pg = fq_upload.files(args)
     ssheet = fq_upload.samplesheet(args)
     fq_upload.runid_json(ssheet["date"], ssheet["investigator"], args, files_pg)
     fq_upload.sample_json(ssheet["kit"], ssheet["reads"], ssheet["sample_inv"], ssheet["sex"], args, files_pg)
     fq_upload.upload_fastq(args, files_pg)
+
+
+"""
+Downloads or delete files from the HCP using boto3 and Jens script.
+"""
+def downloader(args):
+
+    from hcp import HCPManager
+
+    bucket_name = args.bucket
+    hcpm = HCPManager(bucket_name)
+    
+    if args.which == "download" and args.key:
+        obj = hcpm.get_object(args.key) # Get object with key.
+        hcpm.download_object(obj, args.output) # Downloads file.
+
+    if args.which == "download" and args.json:
+        with open(args.json, "r") as js:
+            f = json.load(js)
+
+            results= (f["results"])
+            for item in results:
+                itm = (item["metadata"])
+                forward = (itm["fastqForward"])
+                reverse = (itm["fastqReverse"])
+                string = "".join(forward).strip("[]")+","+"".join(reverse).strip("[]")
+                lst = string.replace('"','').replace("\\","").split(",")
+
+        for i in lst:
+            obj = hcpm.get_object(i) # Get object with json.
+            hcpm.download_object(obj, f"{args.output}/"+os.path.basename(i)) # Downloads file.
+
+    elif args.which == "delete":
+        sys.stdout.write(f"[--] You are about to delete a file \"{args.key}\", are you sure? [Y/N]?\n")
+        sys.stdout.flush()
+        answer = sys.stdin.readline()
+        if answer[0].lower() == "y":
+            hcpm.delete_object(obj) # Delete file.
+            time.sleep(2)
+            print(f"[--] Deleting file \"{args.key}\" \n")
+        else:
+            sys.exit(f"[Error] Exiting... Did not delete the file \"{args.key}\"\n")
+
 
 
 def query(my_query, my_token, my_index, my_out=False):
@@ -40,13 +90,6 @@ def main():
 
     subparsers = parser.add_subparsers(help="Help for subcommands")
 
-    parser_download = subparsers.add_parser('download', help='download data from the HCP')
-    parser_download.set_defaults(which='download')
-    parser_download.add_argument("-b", "--bucket", nargs="?", action="store", type=str, help="Name of the bucket you want to look in")
-    parser_download.add_argument("-s", "--samplename", nargs="?", action="store", type=str, help='Name of the sample you want to download')
-    parser_download.add_argument("-t", "--type", nargs="?", action="store", type=str, help='Type of file you want to download. Ex: fastq/fq')
-    parser_download.add_argument("-p", "--password", nargs="?", action="store", type=str, help="")
-
     parser_upload = subparsers.add_parser('upload', help='Upload fastq data to the HCP')
     parser_upload.set_defaults(which='upload')
     parser_upload.add_argument("-b", "--bucket", required=True, help="Specify which bucket you want to upload to")
@@ -54,8 +97,21 @@ def main():
     parser_upload.add_argument("-s", "--sample", required=True, help="Specify the name of your sample")
     parser_upload.add_argument("-r", "--run", required=True, help="Specify the name of the run to upload")
     parser_upload.add_argument("-p", "--path", required=True, help="The path to directory with files to upload")
+    parser_upload.add_argument("-j", "--jsonpath", required=True, help="The path to directory to put json files")
     parser_upload.add_argument("-c", "--compression", help="Give the path to a compression script for compression of fastq files using petagene")
     parser_upload.add_argument("-v", "--csv", required=True, help="Path to SampleSheet.csv of run")
+
+    parser_download = subparsers.add_parser('download', help='download data from the HCP')
+    parser_download.set_defaults(which='download')
+    parser_download.add_argument("-b", "--bucket", required=True, help="Specify which bucket you want to download from")
+    parser_download.add_argument("-k", "--key", help="The path (key) to the file on the HCP you want to download")
+    parser_download.add_argument("-j", "--json", required=True, help="Json file with path to the  files on the HCP you want to download")
+    parser_download.add_argument("-o", "--output", required=True, help="Where to put the file downloaded from the HCP")
+
+    parser_delete = subparsers.add_parser('delete', help='Delete data from the HCP')
+    parser_delete.set_defaults(which='delete')
+    parser_delete.add_argument("-b", "--bucket", required=True, help="Specify which bucket you want to download from")
+    parser_delete.add_argument("-k", "--key", required=True, help="The path (key) to the file on the HCP you want to delete")
 
     parser_query = subparsers.add_parser('query', help='Query the index for information about run or sample')
     parser_query.set_defaults(which="query")
@@ -68,11 +124,13 @@ def main():
 
     print(args)
 
-    if args.which == 'download':
-        print("download stuff") # replaceme
-    elif args.which == 'upload':
+    if args.which == 'upload':
         print("upload stuff") # replaceme
         uploader(args)
+    elif args.which == 'download':
+        downloader(args)
+    elif args.which == 'delete':
+        downloader(args)
     elif args.which == 'query':
         my_query = args.query
         token = hci.generate_token()
