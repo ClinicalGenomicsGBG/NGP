@@ -4,7 +4,8 @@
 
 import argparse
 import sys
-sys.path.append("/home/xcanfv/NGP/NGPr")
+#sys.path.append("/home/xcanfv/NGP/NGPryy")
+sys.path.append("/apps/bio/repos/NGP/NGPr")
 import fastq_uploader as fq_upload
 import NGPi.hci as hci 
 import json
@@ -67,7 +68,6 @@ def downloader(args):
             sys.exit(f"[Error] Exiting... Did not delete the file \"{args.key}\"\n")
 
 
-
 def query(my_query, my_token, my_index, my_out=False):
     pretty = json.loads(hci.query(my_token, hci.get_template_json(my_index, my_query), my_index))
     if my_out:
@@ -75,9 +75,6 @@ def query(my_query, my_token, my_index, my_out=False):
             result.write(json.dumps(pretty, indent=4))
     else:
         print(json.dumps(pretty, indent=4)) 
-
-
-
 
 
 def main():
@@ -105,7 +102,7 @@ def main():
     parser_download.set_defaults(which='download')
     parser_download.add_argument("-b", "--bucket", required=True, help="Specify which bucket you want to download from")
     parser_download.add_argument("-k", "--key", help="The path (key) to the file on the HCP you want to download")
-    parser_download.add_argument("-j", "--json", required=True, help="Json file with path to the  files on the HCP you want to download")
+    parser_download.add_argument("-j", "--json",  help="Json file with path to the  files on the HCP you want to download")
     parser_download.add_argument("-o", "--output", required=True, help="Where to put the file downloaded from the HCP")
 
     parser_delete = subparsers.add_parser('delete', help='Delete data from the HCP')
@@ -137,6 +134,8 @@ def main():
         my_index = args.indexes
         my_out = args.output
         query(my_query, token, my_index, my_out)
-        
+    else:
+        print("Your arument was not recognised, please use 'upload', 'download', 'delete' or 'query'")
+
 if __name__ == "__main__":
     main()
