@@ -80,6 +80,7 @@ def main():
     parser_upload.add_argument("-s", "--sample", required=True, help="Specify the name of your sample")
     parser_upload.add_argument("-r", "--run", required=True, help="Specify the name of the run to upload")
     parser_upload.add_argument("-p", "--path", required=True, help="The path to directory with files to upload")
+    parser_upload.add_argument("-j", "--jsonpath", required=True, help="The path to directory to put json files")
     parser_upload.add_argument("-c", "--compression", help="Give the path to a compression script for compression of fastq files using petagene")
     parser_upload.add_argument("-v", "--csv", required=True, help="Path to SampleSheet.csv of run")
 
