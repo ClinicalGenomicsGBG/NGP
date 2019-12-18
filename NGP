@@ -32,8 +32,7 @@ def uploader(args):
 """
 Downloads or delete files from the HCP using boto3 and Jens script.
 """
-def downloader(args):
-
+def downloader(args, pretty):
     from hcp import HCPManager
 
     bucket_name = args.bucket
@@ -43,17 +42,17 @@ def downloader(args):
         obj = hcpm.get_object(args.key) # Get object with key.
         hcpm.download_object(obj, args.output) # Downloads file.
 
-    if args.which == "download" and args.json:
-        with open(args.json, "r") as js:
-            f = json.load(js)
+    if args.which == "download" and args.samplename:
+#        with open(args.json, "r") as js:
+        f = json.load(pretty)
 
-            results= (f["results"])
-            for item in results:
-                itm = (item["metadata"])
-                forward = (itm["fastqForward"])
-                reverse = (itm["fastqReverse"])
-                string = "".join(forward).strip("[]")+","+"".join(reverse).strip("[]")
-                lst = string.replace('"','').replace("\\","").split(",")
+        results= (f["results"])
+        for item in results:
+            itm = (item["metadata"])
+            forward = (itm["fastqForward"])
+            reverse = (itm["fastqReverse"])
+            string = "".join(forward).strip("[]")+","+"".join(reverse).strip("[]")
+            lst = string.replace('"','').replace("\\","").split(",")
 
         for i in lst:
             obj = hcpm.get_object(i) # Get object with json.
@@ -106,7 +105,7 @@ def main():
     parser_download.set_defaults(which='download')
     parser_download.add_argument("-b", "--bucket", required=True, help="Specify which bucket you want to download from")
     parser_download.add_argument("-k", "--key", help="The path (key) to the file on the HCP you want to download")
-    parser_download.add_argument("-j", "--json", required=True, help="Json file with path to the  files on the HCP you want to download")
+    parser_download.add_argument("-n", "--samplename", required=True, help="Sample name for files on the HCP you want to download")
     parser_download.add_argument("-o", "--output", required=True, help="Where to put the file downloaded from the HCP")
 
     parser_delete = subparsers.add_parser('delete', help='Delete data from the HCP')
