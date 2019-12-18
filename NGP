@@ -43,9 +43,7 @@ def downloader(args, pretty):
         hcpm.download_object(obj, args.output) # Downloads file.
 
     if args.which == "download" and args.samplename:
-#        with open(args.json, "r") as js:
-        f = json.load(pretty)
-
+        f = pretty
         results= (f["results"])
         for item in results:
             itm = (item["metadata"])
@@ -78,7 +76,7 @@ def query(my_query, my_token, my_index, my_out=False):
             result.write(json.dumps(pretty, indent=4))
     else:
         print(json.dumps(pretty, indent=4)) 
-
+    return pretty
 
 def main():
     """
@@ -106,6 +104,7 @@ def main():
     parser_download.add_argument("-b", "--bucket", required=True, help="Specify which bucket you want to download from")
     parser_download.add_argument("-k", "--key", help="The path (key) to the file on the HCP you want to download")
     parser_download.add_argument("-n", "--samplename", required=True, help="Sample name for files on the HCP you want to download")
+    parser_download.add_argument("-i", "--indexes", nargs="?", action='store', type=str, help=': Specify buckets to list')
     parser_download.add_argument("-o", "--output", required=True, help="Where to put the file downloaded from the HCP")
 
     parser_delete = subparsers.add_parser('delete', help='Delete data from the HCP')
@@ -127,16 +126,16 @@ def main():
     if args.which == 'upload':
         print("upload stuff") # replaceme
         uploader(args)
-    elif args.which == 'download':
-        downloader(args)
-    elif args.which == 'delete':
-        downloader(args)
     elif args.which == 'query':
         my_query = args.query
         token = hci.generate_token()
         my_index = args.indexes
         my_out = args.output
         query(my_query, token, my_index, my_out)
+    elif args.which == 'download':
+        downloader(args, query(args.samplename, hci.generate_token(), args.indexes))
+    elif args.which == 'delete':
+        downloader(args)
         
 if __name__ == "__main__":
     main()
