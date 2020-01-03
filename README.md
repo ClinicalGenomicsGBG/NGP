@@ -19,3 +19,6 @@ The main script [NGP](https://github.com/ClinicalGenomicsGBG/NGP/blob/master/NGP
 
 **Delete a file:**   
 `./NGP delete --bucket [BUCKETNAME] --key [path/to/file]`
+
+# **More information**  
+[Wiki](https://github.com/ClinicalGenomicsGBG/NGP/wiki)
