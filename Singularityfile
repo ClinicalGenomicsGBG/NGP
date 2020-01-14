@@ -1,0 +1,53 @@
+Bootstrap: library
+From: centos:7
+Stage: build
+
+%post
+# Install python3 and other requirements for git and pip3
+yum install -y python3
+yum install -y epel-release
+yum install -y python3-pip
+yum -y groupinstall "Development Tools"
+
+# Clone NGP repository to home in the Singularity container, with submodules NGPr and NGPi
+git clone --recursive https://github.com/ClinicalGenomicsGBG/NGP.git #/tmp/vilma_testar/NGP
+
+# Install vim 
+yum install -y vim
+
+# Install requirements
+pip3 install boto3==1.9.60
+pip3 install asn1crypto==1.2.0
+pip3 install botocore==1.12.60
+pip3 install certifi==2019.11.28
+pip3 install cffi==1.11.5
+pip3 install chardet==3.0.4
+pip3 install contextlib2==0.6.0.post1
+pip3 install cryptography==2.3
+pip3 install cryptography-vectors==2.3.1
+pip3 install docopt==0.6.2
+pip3 install docutils==0.14
+#pip install hcp==0.1
+pip3 install idna==2.8
+pip3 install jedi==0.13.1
+pip3 install jmespath==0.9.3
+pip3 install marrow.mailer==4.0.2
+pip3 install marrow.util==1.2.3
+pip3 install parso==0.3.1
+pip3 install prompt-toolkit==2.0.7
+pip3 install ptpython==2.0.4
+pip3 install pycparser==2.19
+pip3 install Pygments==2.3.0
+pip3 install pyOpenSSL==19.0.0
+pip3 install PySocks==1.7.1
+pip3 install python-dateutil==2.7.5
+pip3 install requests==2.22.0
+pip3 install s3transfer==0.1.13
+pip3 install schema==0.7.0
+pip3 install six==1.13.0
+pip3 install urllib3==1.24.2
+pip3 install wcwidth==0.1.7
+
+%labels
+    Author Vilma Canfjorden
+    Version v0.0.1
