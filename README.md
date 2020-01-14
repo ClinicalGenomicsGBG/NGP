@@ -20,5 +20,14 @@ The main script [NGP](https://github.com/ClinicalGenomicsGBG/NGP/blob/master/NGP
 **Delete a file:**   
 `./NGP delete --bucket [BUCKETNAME] --key [path/to/file]`
 
+
+### Singularity   
+The Singularityfile is used to build a singularity image.   
+
+`singularity build singularity_NGP.img Singularityfile`  
+
+Open an interactive shell by using the image, you can also mount a directory with files by using option `-B`:   
+`singularity shell -B /home/xcanfv/:/scratch singularity_NGP.img`     
+
 # **More information**  
 [Wiki](https://github.com/ClinicalGenomicsGBG/NGP/wiki)
