@@ -1,6 +1,7 @@
 [submodule "NGPi"]
 	path = NGPi
-    url = git@github.com:ClinicalGenomicsGBG/NGPi.git
+    #url = git@github.com:ClinicalGenomicsGBG/NGPi.git
+    url = https://github.com:ClinicalGenomicsGBG/NGPi.git
     ignore = dirty
 [submodule "NGPr"]
 	path = NGPr
