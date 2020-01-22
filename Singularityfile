@@ -15,7 +15,10 @@ git clone --recursive https://github.com/ClinicalGenomicsGBG/NGP.git #/tmp/vilma
 # Install vim 
 yum install -y vim
 
-# Install requirements
+# Install petasuite
+yum install -y petasuite-cloud-edition
+
+# Install requirements for HCP
 pip3 install boto3==1.9.60
 pip3 install asn1crypto==1.2.0
 pip3 install botocore==1.12.60
