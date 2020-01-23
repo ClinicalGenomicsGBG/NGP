@@ -16,7 +16,7 @@ and sample ID.
 def uploader(args):
     sys.path.append("/home/xcanfv/NGPr/")
     from uploader import template as template
-    from uploader import files as fq_file
+    from uploader import files as files
     from uploader import validation as validation
     from uploader import upload_fastq as upload_fastq
     from uploader import upload_vcf as upload_vcf
