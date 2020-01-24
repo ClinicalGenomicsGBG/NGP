@@ -2,6 +2,7 @@ Bootstrap: library
 From: centos:7
 Stage: build
 
+
 %post
 # Install python3 and other requirements for git and pip3
 yum install -y python3
@@ -10,7 +11,7 @@ yum install -y python3-pip
 yum -y groupinstall "Development Tools"
 
 # Clone NGP repository to home in the Singularity container, with submodules NGPr and NGPi
-git clone --recursive https://github.com/ClinicalGenomicsGBG/NGP.git #/tmp/vilma_testar/NGP
+git clone --recursive https://github.com/ClinicalGenomicsGBG/NGP.git ~/ #/tmp/vilma_testar/NGP ~/
 
 # Install vim 
 yum install -y vim
